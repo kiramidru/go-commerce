@@ -7,6 +7,6 @@ import (
 )
 
 func ItemRoutes(router *gin.Engine) {
-	router.GET("/items", controller.GetItems())
-	router.GET("/item/:item_id", controller.GetItem())
+	router.GET("/items", controller.GetProducts())
+	router.GET("/item/:item_id", controller.GetProduct())
 }

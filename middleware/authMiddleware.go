@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	helper "carbon/go-commerce/helpers"
+	"carbon/go-commerce/helpers"
 	"fmt"
 	"net/http"
 
@@ -18,7 +18,7 @@ func Authenticate() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := helper.ValidateTokens(clientToken)
+		claims, err := helpers.ValidateTokens(clientToken)
 
 		if err != "" {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
