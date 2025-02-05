@@ -2,7 +2,10 @@ module carbon/go-commerce
 
 go 1.23.4
 
-require go.mongodb.org/mongo-driver v1.17.2
+require (
+	github.com/golang-jwt/jwt v3.2.2+incompatible
+	go.mongodb.org/mongo-driver v1.17.2
+)
 
 require (
 	github.com/bytedance/sonic v1.11.6 // indirect

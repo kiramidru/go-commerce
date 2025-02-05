@@ -13,31 +13,31 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-var ItemCollection *mongo.Collection = database.OpenCollection(*database.Client, "item")
+var ProductCollection *mongo.Collection = database.OpenCollection(*database.Client, "product")
 
-func GetItems() gin.HandlerFunc {
+func GetProducts() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
 
-		recordPerPage, error := strconv.Atoi(c.Query("recordPerPage"))
+		recordPerPage, err := strconv.Atoi(c.Query("recordPerPage"))
 
-		if error != nil || recordPerPage < 1 {
+		if err != nil || recordPerPage < 1 {
 			recordPerPage = 10
 		}
 
-		page, error := strconv.Atoi(c.Query("page"))
+		page, err := strconv.Atoi(c.Query("page"))
 
-		if error != nil || page < 1 {
+		if err != nil || page < 1 {
 			page = 1
 		}
 
 		startIndex := (page - 1) * recordPerPage
-		startIndex, error = strconv.Atoi(c.Query("startIndex"))
+		startIndex, err = strconv.Atoi(c.Query("startIndex"))
 
 		matchStage := bson.D{{Key: "$match", Value: bson.D{{}}}}
 
 		groupStage := bson.D{{Key: "group", Value: bson.D{
-			{Key: "_id", Value: bson.D{{Key: "_id", Value: "null"}}},
+			{Key: "_product_id", Value: bson.D{{Key: "_product_id", Value: "null"}}},
 			{Key: "total_count", Value: bson.D{{Key: "$sum", Value: 1}}},
 			{Key: "data", Value: bson.D{{Key: "$push", Value: "$$ROOT"}}},
 		}}}
@@ -46,33 +46,33 @@ func GetItems() gin.HandlerFunc {
 			{Key: "$project", Value: bson.D{
 				{Key: "_id", Value: 0},
 				{Key: "total_count", Value: 1},
-				{Key: "user_items", Value: bson.D{
+				{Key: "product_items", Value: bson.D{
 					{Key: "$slice", Value: []interface{}{"$data", startIndex, recordPerPage}},
 				}},
 			}},
 		}
 
 		defer cancel()
-		result, error := ItemCollection.Aggregate(ctx, mongo.Pipeline{
+		result, err := ProductCollection.Aggregate(ctx, mongo.Pipeline{
 			matchStage, groupStage, projectStage,
 		})
 
-		if error != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": error.Error()})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
 
-		var allUsers []bson.M
+		var allProducts []bson.M
 
-		if error = result.All(ctx, &allUsers); error != nil {
-			log.Fatal(error)
+		if err := result.All(ctx, &allProducts); err != nil {
+			log.Fatal(err)
 		}
 
-		c.JSON(http.StatusOK, allUsers[0])
+		c.JSON(http.StatusOK, allProducts[0])
 	}
 }
 
-func GetItem() gin.HandlerFunc {
+func GetProduct() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 	}

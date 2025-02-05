@@ -17,15 +17,15 @@ func DBInstance() *mongo.Client {
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(url).SetServerAPIOptions(serverAPI)
 
-	client, error := mongo.Connect(context.TODO(), opts)
+	client, err := mongo.Connect(context.TODO(), opts)
 
-	if error != nil {
-		log.Fatal(error)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	defer func() {
-		if error = client.Disconnect(context.TODO()); error != nil {
-			log.Fatal(error)
+		if err := client.Disconnect(context.TODO()); err != nil {
+			log.Fatal(err)
 		}
 	}()
 	return client
