@@ -5,15 +5,22 @@ import (
 	"log"
 	"os"
 
+	"github.com/joho/godotenv"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func DBInstance() *mongo.Client {
-	url := os.Getenv("MONGODB_URL")
-	if url == "" {
-		log.Fatal("No environment found")
+	if err := godotenv.Load(); err != nil {
+		log.Print("No .env file found")
 	}
+
+	url := os.Getenv("MONGODB_URL")
+
+	if url == "" {
+		log.Fatal("No environment file found")
+	}
+
 	serverAPI := options.ServerAPI(options.ServerAPIVersion1)
 	opts := options.Client().ApplyURI(url).SetServerAPIOptions(serverAPI)
 
@@ -23,11 +30,6 @@ func DBInstance() *mongo.Client {
 		log.Fatal(err)
 	}
 
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			log.Fatal(err)
-		}
-	}()
 	return client
 }
 

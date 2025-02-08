@@ -34,6 +34,7 @@ func Login() gin.HandlerFunc {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
 		}
+		defer cancel()
 
 		passwordIsValid, msg := VerifyPassword(*user.Password, *foundUser.Password)
 
@@ -49,7 +50,7 @@ func Login() gin.HandlerFunc {
 		}
 
 		helpers.UpdateAllTokens(token, refreshToken, foundUser.User_id)
-
+		c.JSON(http.StatusOK, &foundUser)
 	}
 }
 

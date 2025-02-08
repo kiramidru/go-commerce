@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"carbon/go-commerce/database"
+	"carbon/go-commerce/models"
 	"context"
 	"log"
 	"net/http"
@@ -74,6 +75,17 @@ func GetProducts() gin.HandlerFunc {
 
 func GetProduct() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		var product models.Product
+		var product_id string
+		c.BindJSON(&product_id)
 
+		var ctx, cancel = context.WithTimeout(context.Background(), 100*time.Second)
+
+		defer cancel()
+		err := ProductCollection.FindOne(ctx, bson.M{"product_id": product_id}).Decode(&product)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		}
+		c.JSON(http.StatusOK, product)
 	}
 }
